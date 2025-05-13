@@ -17,7 +17,7 @@ def load_mock_data():
             'Destination': np.random.choice(['JFK', 'LAX', 'ORD', 'ATL', 'DFW'], num),
             'DepartureTime': np.random.choice(['Morning', 'Afternoon', 'Evening', 'Night'], num),
             'DelayReason': np.random.choice(['Weather', 'Crew', 'Technical', 'Air Traffic', 'Security'], num),
-            'DelayMinutes': np.random.exponential(scale=20, size=num).astype(int)
+            'DelayMinutes': np.random.exponential(scale=25, size=num).astype(int)
         }
         return pd.DataFrame(data)
     except Exception as e:
@@ -30,7 +30,11 @@ def plot_bar_avg(df, group_col, title, xlabel):
         avg = df.groupby(group_col)["DelayMinutes"].mean().sort_values()
         fig_height = max(5, len(avg) * 0.6)
         fig, ax = plt.subplots(figsize=(10, fig_height))
-        colors = sns.color_palette("coolwarm", len(avg))
+
+        #dynamic delay highlighting
+        base_palette = sns.color_palette("husl", len(avg))  # vivid hues
+        colors = ["#e63946" if val > 25 else base_palette[i] for i, val in enumerate(avg.values)]
+
         bars = sns.barplot(x=avg.values, y=avg.index, ax=ax, palette=colors)
 
         ax.set_title(title, fontsize=16, pad=15)
@@ -41,7 +45,6 @@ def plot_bar_avg(df, group_col, title, xlabel):
         #annotate bars
         max_val = max(avg.values)
         ax.set_xlim(0, max_val * 1.15)
-
         for i, v in enumerate(avg.values):
             ax.text(v + (max_val * 0.01), i, f"{v:.1f}", va='center', fontsize=10)
 
@@ -55,9 +58,14 @@ def plot_bar_avg(df, group_col, title, xlabel):
 def show_summary_stats(df):
     try:
         st.markdown("### Data Summary")
-        st.write(f"**Total flights:** {len(df)}")
-        st.write(f"**Average delay:** {df['DelayMinutes'].mean():.1f} min")
-        st.write(f"**Maximum delay:** {df['DelayMinutes'].max()} min")
+
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Total Flights", len(df))
+        with col2:
+            st.metric("Avg Delay", f"{df['DelayMinutes'].mean():.1f} min")
+        with col3:
+            st.metric("Max Delay", f"{df['DelayMinutes'].max()} min")
 
         if len(df) > 0:
             worst_carrier = df.groupby("Carrier")["DelayMinutes"].mean().idxmax()
