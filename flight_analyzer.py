@@ -28,11 +28,24 @@ def load_mock_data():
 def plot_bar_avg(df, group_col, title, xlabel):
     try:
         avg = df.groupby(group_col)["DelayMinutes"].mean().sort_values()
-        fig, ax = plt.subplots()
-        sns.barplot(x=avg.index, y=avg.values, ax=ax)
-        ax.set_title(title)
-        ax.set_ylabel("Avg Delay (min)")
-        ax.set_xlabel(xlabel)
+        fig_height = max(5, len(avg) * 0.6)
+        fig, ax = plt.subplots(figsize=(10, fig_height))
+        colors = sns.color_palette("coolwarm", len(avg))
+        bars = sns.barplot(x=avg.values, y=avg.index, ax=ax, palette=colors)
+
+        ax.set_title(title, fontsize=16, pad=15)
+        ax.set_xlabel("Avg Delay (min)", fontsize=12)
+        ax.set_ylabel(xlabel, fontsize=12)
+        ax.grid(axis='x', linestyle='--', alpha=0.7)
+
+        #annotate bars
+        max_val = max(avg.values)
+        ax.set_xlim(0, max_val * 1.15)
+
+        for i, v in enumerate(avg.values):
+            ax.text(v + (max_val * 0.01), i, f"{v:.1f}", va='center', fontsize=10)
+
+        fig.tight_layout()
         return fig
     except Exception as e:
         st.warning(f"Could not render plot: {e}")
@@ -87,13 +100,13 @@ else:
 
 #plots
 if len(filtered) > 0:
-    fig1 = plot_bar_avg(filtered, "Carrier", "Avg Delay by Carrier", "Carrier")
+    fig1 = plot_bar_avg(filtered, "Carrier", "Average Delay by Carrier", "Carrier")
     if fig1: st.pyplot(fig1)
 
-    fig2 = plot_bar_avg(filtered, "DelayReason", "Avg Delay by Reason", "Reason")
+    fig2 = plot_bar_avg(filtered, "DelayReason", "Average Delay by Reason", "Reason")
     if fig2: st.pyplot(fig2)
 
-    fig3 = plot_bar_avg(filtered, "DepartureTime", "Avg Delay by Time", "Time of Day")
+    fig3 = plot_bar_avg(filtered, "DepartureTime", "Average Delay by Time of Day", "Time of Day")
     if fig3: st.pyplot(fig3)
 
     #summary
