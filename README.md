@@ -8,8 +8,13 @@ Streamlit web app that visualizes simulated data and recommends solutions for fl
 - Strategy suggestions based on data patterns
 - Designed to mimic a junior portfolio project
 
+## Change Log
+
+See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
+
 ## How to Run
 
 ```bash
 pip install -r requirements.txt
 streamlit run flight_analyzer.py
+
