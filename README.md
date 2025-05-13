@@ -13,4 +13,3 @@ Streamlit web app that visualizes simulated data and recommends solutions for fl
 ```bash
 pip install -r requirements.txt
 streamlit run flight_analyzer.py
->>>>>>> b2006d0 (Initial commit of Flight Logistics Analyzer)
